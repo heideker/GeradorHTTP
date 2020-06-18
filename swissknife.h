@@ -72,3 +72,28 @@ std::string ReplaceForbidden(std::string s){
 }
 
 
+
+float getExpInterval(float RatePerSec){
+    float rnd;
+    rnd = (float) rand() / ((float) RAND_MAX + 1);
+    if (rnd < 1 && RatePerSec != 0 ) {
+        return (-1 * log(1 - rnd) / RatePerSec);
+    } else {
+        return 0;
+    }
+}
+
+void SleepPlus(float t) {
+    int s;
+    long ns;
+    float resto;
+    resto = (float) t - (int) t;
+    s = (int) t;
+    ns = (long) (resto * 1000000000L);
+    struct timespec req = {0};
+    req.tv_sec = s;
+    req.tv_nsec = ns;
+    nanosleep(&req, (struct timespec *)NULL);    
+    return;
+}
+

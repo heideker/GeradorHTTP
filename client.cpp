@@ -21,7 +21,7 @@
 #include <thread>
 #include <iostream>
 #include <vector>
-
+#include<bits/stdc++.h>
 
 #include "rest.cpp"
 #include "swissknife.h"
@@ -49,10 +49,12 @@ string getAllTargets();
 string getRndTarget();
 
 float alfa;
+float rate;
 std::vector <std::string>  target;
 string tag;
 string FileName;
 int id;
+int nFiles = 100;
 int ExpTime;
 int ExpStart;
 bool _debugMode;
@@ -68,9 +70,6 @@ bool logSql = false;
 bool https = false;
 string proxy = "";
 ofstream logOut;
-
-
-
 
 int main(int argc, char *argv[]) {
     Randomize();
@@ -123,7 +122,7 @@ void Worker(int n) {
         SleepExp(timeExp);
         unsigned tInicio =  (unsigned) time(NULL) ;
         
-        int n = RndI(1, 1000);
+        int n = RndI(1, nFiles);
         Rest rest;
         string url = ((https)? "https://" : "http://") + getRndTarget() + "/" + to_string(n) + ".jpg";
         if (_debugMode) cout << "wGet " << url << endl;
@@ -210,10 +209,11 @@ float getTimeExp(float alf) {
 }
 
 bool parseVar(string token, string value){
-    if (token == "debugMode") {
+    transform(token.begin(), token.end(), token.begin(), ::tolower);
+    if (token == "debugmode") {
         _debugMode = stoi(value);
     } else
-    if (token == "logSql") {
+    if (token == "logsql") {
         logSql = true;
     } else
     if (token == "https") {
@@ -221,6 +221,9 @@ bool parseVar(string token, string value){
     } else
     if (token == "alfa") {
         alfa = stof(value);
+    } else
+    if (token == "rate") {
+        rate = stof(value);
     } else
     if (token == "target") {
         target = splitString(trim(value), ',');
@@ -234,19 +237,22 @@ bool parseVar(string token, string value){
     if (token == "id") {
         id = stoi(value);
     } else
-    if (token == "ExpTime") {
+    if (token == "nfiles") {
+        nFiles = stoi(value);
+    } else
+    if (token == "exptime") {
         ExpTime = stoi(value);
     } else
-    if (token == "qtdWorkers") {
+    if (token == "qtdworkers") {
         qtdWorkers = stoi(value);
     } else
     if (token == "help") {
-        cout << "Usage: \n \t --debugMode=<int>\n\t--alfa=<float>\n\t--proxy=<host:port>\n\t--target=<host,host,host>\n\t--tag=<exp.tag>\n\t--id=<int>\n\t--ExpTime=<int>\n\t--qtdWorkers=<int>\n\t--logSQL\n\t--https\n\t--help (this help)" << endl;
+        cout << "Usage: \n \t --debugMode=<int>\n\t--alfa=<float>\n\t--proxy=<host:port>\n\t--target=<host,host,host>\n\t--tag=<exp.tag>\n\t--id=<int>\n\t--nFiles=<int>\n\t--ExpTime=<int>\n\t--qtdWorkers=<int>\n\t--logSQL\n\t--https\n\t--help (this help)" << endl;
         return false;
     } else
     {
-        cout << "Invalid argument: Token=" << token << "  Value=" << value << endl;
-        cout << "Usage: \n \t --debugMode=1\n\t--alfa=<float>\n\t--proxy=<host:port>\n\t--target=<host,host,host>\n\t--tag=<exp.tag>\n\t--id=<int>\n\t--ExpTime=<int>\n\t--qtdWorkers=<int>\n\t--logSQL\n\t--https\n\t--help (this help)" << endl;
+        cout << "Invalid argument: Token=" << token << (value != "" ? "  Value=" : "") << value << endl;
+        cout << "Usage: \n \t --debugMode=<int>\n\t--alfa=<float>\n\t--proxy=<host:port>\n\t--target=<host,host,host>\n\t--tag=<exp.tag>\n\t--id=<int>\n\t--nFiles=<int>\n\t--ExpTime=<int>\n\t--qtdWorkers=<int>\n\t--logSQL\n\t--https\n\t--help (this help)" << endl;
         return false;
     }
     return true;
@@ -278,13 +284,17 @@ bool readSetup(){
 bool readSetupFromCL(int argc, char *argv[]){
     int i;
     bool error = false;
-    string token;
+    string token = "";
     string value;
     for (i=1; i<argc; i++) {
         string line(argv[i]);
         if (line[0] == '-' && line[1] == '-') {
             token = trim(line.substr(2, line.find("=")-2));
-            value = trim(line.substr(line.find("=")+1, line.length()-1));
+            if (line.find("=") != string::npos) {
+                value = trim(line.substr(line.find("=")+1, line.length()-1));
+            } else {
+                value = "";
+            }
             error = !parseVar(token, value);
         } else {
             error = true;
