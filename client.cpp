@@ -270,7 +270,11 @@ bool readSetup(){
             getline(File, line);
             if (line[0] != '#' && line!="") {
                 token = trim(line.substr(0, line.find("=")));
-                value = trim(line.substr(line.find("=")+1, line.length()-1));
+                if (line.find("=") != string::npos) {
+                    value = trim(line.substr(line.find("=")+1, line.length()-1));
+                } else {
+                    value = "";
+                }
                 error = !parseVar(token, value);
             }
         }
