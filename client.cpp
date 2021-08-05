@@ -2,7 +2,7 @@
  * File:   client.cpp
  * Author: Alexandre Heideker
  *
- * Created on 24 de Março de 2017, 14:04
+ * Created on March 24 2017, 14:04
  */
 
 #include <stack>
